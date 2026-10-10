@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة وفواتير مصنع (tow_a) | لتصنيع الارفف والاستندات بتقنية الفايبر ليزر</title>
+
+  <!-- Favicon & Brand Icons -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="assets/logo.jpg">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- html2canvas for Invoice Image Capture (Local Offline-Ready) -->
+  <script src="js/html2canvas.min.js"></script>
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-header">
+        <div class="brand-header-main">
+          <div class="logo-box">
+            <img src="assets/logo.jpg" alt="tow_a logo" class="brand-logo-img" id="sidebarLogoImg">
+          </div>
+          <div class="brand-info">
+            <h2 id="brandNameDisplay">مصنع (tow_a)</h2>
+          </div>
+          <div class="brand-header-actions">
+            <button type="button" class="btn-pin-sidebar" id="btnPinSidebar" title="تثبيت القائمة مفتوحة" aria-label="تثبيت القائمة">
+              <i class="fa-solid fa-thumbtack"></i>
+            </button>
+            <button type="button" class="btn-close-sidebar" id="btnCloseSidebar" title="إغلاق القائمة" aria-label="إغلاق القائمة">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+        <div class="brand-sub-container" id="brandSubContainer">
+          <span class="brand-sub-badge" id="brandSubDisplay" title="لتصنيع الارفف والاستندات بتقنية الفايبر ليزر">لتصنيع الارفف والاستندات بتقنية الفايبر ليزر</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="pos" title="نقطة البيع والفواتير">
+          <i class="fa-solid fa-cash-register"></i>
+          <span>نقطة البيع والفواتير</span>
+        </button>
+        <button class="nav-item" data-tab="items" title="الأصناف والمخزون">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>الأصناف والمخزون</span>
+        </button>
+        <button class="nav-item" data-tab="customers" title="العملاء">
+          <i class="fa-solid fa-users"></i>
+          <span>العملاء</span>
+        </button>
+        <button class="nav-item" data-tab="ovens" title="الأفران والتشغيل">
+          <i class="fa-solid fa-fire-burner"></i>
+          <span>الأفران والتشغيل</span>
+        </button>
+        <button class="nav-item" data-tab="cutters" title="المقصات والتشغيل">
+          <i class="fa-solid fa-scissors"></i>
+          <span>المقصات والتشغيل</span>
+        </button>
+        <button class="nav-item" data-tab="suppliers" title="الموردين">
+          <i class="fa-solid fa-truck-moving"></i>
+          <span>الموردين</span>
+        </button>
+        <button class="nav-item" data-tab="invoices" title="سجل الفواتير">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>سجل الفواتير</span>
+          <span class="nav-count" id="invoicesBadgeCount">0</span>
+        </button>
+        <button class="nav-item" data-tab="settings" title="إعدادات النظام">
+          <i class="fa-solid fa-gears"></i>
+          <span>إعدادات النظام</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <div class="user-details">
+            <span class="user-name" id="currentUsernameDisplay">المدير العام</span>
+            <span class="user-role" id="currentUserRoleDisplay">مدير النظام</span>
+          </div>
+          <button class="btn-icon" id="btnQuickLock" title="قفل الشاشة">
+            <i class="fa-solid fa-lock"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MOBILE SIDEBAR OVERLAY BACKDROP -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="btn-toggle-menu" id="btnSidebarToggle" title="فتح القائمة الرئيسية">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+          <div class="page-title-group">
+            <h1 id="pageTitle">نقطة البيع وإصدار الفواتير</h1>
+            <p id="pageSubtitle">إنشاء فواتير للعملاء، الموردين، وعمليات الأفران بسرعة وسهولة</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Live Clock -->
+          <div class="live-clock">
+            <i class="fa-regular fa-clock"></i>
+            <span id="liveTime">00:00:00</span>
+          </div>
+
+          <!-- Quick Actions -->
+          <button class="btn btn-primary" id="btnNewInvoiceQuick">
+            <i class="fa-solid fa-plus"></i>
+            <span>فاتورة جديدة</span>
+          </button>
+
+          <!-- Account / Login / Logout Button (User Request) -->
+          <div class="header-auth-wrapper">
+            <button type="button" class="btn btn-header-auth" id="btnHeaderAuth" title="الحساب وتسجيل الدخول / الخروج">
+              <i class="fa-solid fa-circle-user auth-avatar-icon"></i>
+              <span class="auth-name" id="headerAuthUsername">المدير العام</span>
+              <i class="fa-solid fa-chevron-down auth-chevron"></i>
+            </button>
+            <div class="header-auth-dropdown" id="headerAuthDropdown">
+              <div class="auth-dropdown-user-box">
+                <div class="drop-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="drop-meta">
+                  <strong id="dropUserName">المدير العام</strong>
+                  <span id="dropUserRole" class="text-accent">مدير النظام</span>
+                </div>
+              </div>
+              <div class="auth-dropdown-menu">
+                <button type="button" class="auth-drop-btn" id="btnHeaderSwitchUser">
+                  <i class="fa-solid fa-users"></i>
+                  <span>تبديل الحساب / تسجيل الدخول</span>
+                </button>
+                <button type="button" class="auth-drop-btn text-danger" id="btnHeaderLogout">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                  <span>تسجيل الخروج</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Views Container -->
+      <div class="content-body">
+
+        <!-- ================= TAB: POS / CREATE INVOICE ================= -->
+        <section class="tab-pane active" id="pane-pos">
+          <!-- Edit Invoice Mode Banner -->
+          <div id="posEditModeBanner" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent); color: #fde68a; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; align-items: center; justify-content: space-between; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-pen-to-square text-accent" style="font-size: 1.2rem;"></i>
+              <span>أنت الآن في وضع تعديل الفاتورة: <strong id="posEditInvoiceNumberText" style="color: #fff; font-size: 1.05rem;">INV-1001</strong></span>
+              <span class="badge-status" style="background: rgba(245, 158, 11, 0.25); color: #f59e0b; border-color: rgba(245, 158, 11, 0.5);">وضع التعديل النشط</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.cancelInvoiceEdit()">
+              <i class="fa-solid fa-xmark"></i> إلغاء التعديل والعودة لفاتورة جديدة
+            </button>
+          </div>
+
+          <div class="pos-grid">
+            
+            <!-- Invoice Meta & Selection Column -->
+            <div class="pos-config-card card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-file-pen text-accent"></i> بيانات أطراف الفاتورة</h3>
+                <span class="invoice-number-tag" id="currentInvoiceNumberTag">#INV-1001</span>
+              </div>
+              
+              <div class="card-body">
+                <!-- Target Party Type -->
+                <div class="form-group mb-3">
+                  <label class="form-label">الجهة الصادرة إليها الفاتورة <span class="required">*</span></label>
+                  <div class="party-type-selector">
+                    <label class="radio-chip active">
+                      <input type="radio" name="posPartyType" value="customer" checked>
+                      <i class="fa-solid fa-user-tie"></i>
+                      <span>فاتورة عميل</span>
+                    </label>
+                    <label class="radio-chip">
+                      <input type="radio" name="posPartyType" value="oven">
+                      <i class="fa-solid fa-fire"></i>
+                      <span>فاتورة فرن</span>
+                    </label>
+                    <label class="radio-chip">
+                      <input type="radio" name="posPartyType" value="cutter">
+                      <i class="fa-solid fa-scissors"></i>
+                      <span>فاتورة مقص</span>
+                    </label>
+                    <label class="radio-chip">
+                      <input type="radio" name="posPartyType" value="supplier">
+                      <i class="fa-solid fa-truck"></i>
+                      <span>فاتورة مورد</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Select Entity Dropdown or Quick Add -->
+                <div class="form-group mb-3">
+                  <div class="d-flex justify-between align-center mb-1">
+                    <label class="form-label mb-0" id="partySelectLabel">اختر العميل</label>
+                    <button type="button" class="btn-text-link" id="btnQuickAddParty">
+                      <i class="fa-solid fa-circle-plus"></i> إضافة جهة جديدة
+                    </button>
+                  </div>
+                  <select class="form-control" id="posPartySelect">
+                    <option value="">-- اضغط للاختيار --</option>
+                  </select>
+                </div>
+
+                <!-- Selected Party Info Card -->
+                <div class="selected-party-preview" id="partyPreviewCard" style="display: none;">
+                  <div class="preview-item">
+                    <span class="preview-label">الهاتف:</span>
+                    <span class="preview-value" id="partyPreviewPhone">-</span>
+                  </div>
+                  <div class="preview-item">
+                    <span class="preview-label">العنوان / الكود:</span>
+                    <span class="preview-value" id="partyPreviewAddress">-</span>
+                  </div>
+                </div>
+
+                <!-- Invoice Date & Payment Method -->
+                <div class="form-row mt-3">
+                  <div class="form-group col-6">
+                    <label class="form-label">تاريخ الفاتورة</label>
+                    <input type="date" class="form-control" id="posInvoiceDate">
+                  </div>
+                  <div class="form-group col-6">
+                    <label class="form-label">طريقة السداد</label>
+                    <select class="form-control" id="posPaymentMethod">
+                      <option value="نقدي">نقدي (كاش)</option>
+                      <option value="آجل">آجل (ذمم)</option>
+                      <option value="تحويل بنكي">تحويل بنكي / فودافون كاش</option>
+                      <option value="شيك">شيك بنكي</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group mt-3">
+                  <label class="form-label">ملاحظات على الفاتورة</label>
+                  <textarea class="form-control" id="posInvoiceNotes" rows="2" placeholder="ملاحظات التشغيل، التسليم، أو الدفع..."></textarea>
+                </div>
+
+                <!-- Linked External Dispatch (Oven & Cutter) for Customer Invoices -->
+                <div class="pos-dispatch-box mt-3" id="posLinkedDispatchSection">
+                  <div class="dispatch-box-header">
+                    <i class="fa-solid fa-link text-accent"></i>
+                    <span>ربط بالتشغيل الخارجي (الفرن والمقص):</span>
+                  </div>
+                  <div class="dispatch-options-list mt-2">
+                    <div class="dispatch-item">
+                      <label class="custom-check-item">
+                        <input type="checkbox" id="chkDispatchOven">
+                        <span><i class="fa-solid fa-fire text-danger"></i> إرسال أمر تشغيل للفرن (نفس المقاسات وبدون سعر)</span>
+                      </label>
+                      <div id="dispatchOvenSelectWrap" style="display: none; margin-top: 8px;">
+                        <select class="form-control" id="dispatchOvenSelect">
+                          <option value="">-- اختر فرن التشغيل --</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="dispatch-item mt-2">
+                      <label class="custom-check-item">
+                        <input type="checkbox" id="chkDispatchCutter">
+                        <span><i class="fa-solid fa-scissors" style="color: #a855f7;"></i> إرسال أمر تفصيل للمقص (+8 سم عرض / +4 سم طول - بدون سعر)</span>
+                      </label>
+                      <div id="dispatchCutterSelectWrap" style="display: none; margin-top: 8px;">
+                        <select class="form-control" id="dispatchCutterSelect">
+                          <option value="">-- اختر مقص التشغيل --</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Linked Client Invoice Selection (for Oven & Cutter Invoices) -->
+                <div class="pos-dispatch-box mt-3 pos-link-client-box" id="posLinkClientSection" style="display: none;">
+                  <div class="link-box-header">
+                    <div class="link-box-title-row">
+                      <div class="d-flex align-center gap-2">
+                        <i class="fa-solid fa-file-import text-accent" style="font-size: 0.95rem;"></i>
+                        <span class="link-box-title" id="posLinkClientBoxTitle">استيراد بنود من فاتورة عميل:</span>
+                      </div>
+                      <span class="badge-status" id="posLinkClientTypeBadge">أمر تشغيل</span>
+                    </div>
+                    <div class="link-box-hint" id="posLinkClientNotice">
+                      اختر العميل وفاتورته لجلب الأبعاد تلقائياً لحقول الإدخال
+                    </div>
+                  </div>
+                  
+                  <div class="link-box-body">
+                    <!-- Customer Select -->
+                    <div class="form-group mb-2">
+                      <label class="form-label mb-1 link-field-label">
+                        <i class="fa-solid fa-user-check text-accent"></i> 1. اختيار العميل <span class="required">*</span>
+                      </label>
+                      <select class="form-control" id="posLinkCustomerSelect">
+                        <option value="">-- اختر العميل لعرض فواتيره --</option>
+                      </select>
+                    </div>
+
+                    <!-- Client Invoice Select -->
+                    <div class="form-group mb-2">
+                      <label class="form-label mb-1 link-field-label">
+                        <i class="fa-solid fa-file-invoice text-accent"></i> 2. اختيار رقم الفاتورة <span class="required">*</span>
+                      </label>
+                      <select class="form-control" id="posLinkInvoiceSelect" disabled>
+                        <option value="">-- اختر العميل أولاً --</option>
+                      </select>
+                    </div>
+
+                    <!-- Invoice Preview & Items Container -->
+                    <div id="posLinkInvoicePreview" style="display: none;">
+                      <!-- Rule Formula Banner -->
+                      <div class="link-formula-banner mb-2" id="posLinkRuleBanner">
+                        <!-- Injected dynamically -->
+                      </div>
+
+                      <!-- Items Picker / Switcher -->
+                      <div class="link-items-wrap mb-2">
+                        <div class="d-flex justify-between align-center mb-1">
+                          <span class="link-field-label"><i class="fa-solid fa-cubes text-accent"></i> بنود الفاتورة:</span>
+                          <small class="text-muted" style="font-size: 0.72rem;">اضغط لعرض البند في الإدخال</small>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1" id="posLinkItemsChips"></div>
+                      </div>
+
+                      <!-- Action Button to Import All Items -->
+                      <button type="button" class="btn btn-import-all w-100" id="btnImportAllClientItems">
+                        <i class="fa-solid fa-cart-arrow-down"></i>
+                        <span id="btnImportAllClientItemsText">إدراج كافة البنود في الجدول (1 بند)</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Invoice Item Adder & Table Column -->
+            <div class="pos-cart-card card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-cart-flatbed-suitcase text-accent"></i> بنود وأصناف الفاتورة</h3>
+                <span class="subtext">أبعاد الصنف (السعر - العرض - الطول)</span>
+              </div>
+              
+              <div class="card-body">
+                <!-- Quick Fast Add Item Form -->
+                <div class="add-item-box">
+                  <div class="form-row">
+                    <!-- Core Category Fast Selector -->
+                    <div class="form-group col-4">
+                      <label class="form-label">اختر الصنف / المنتج</label>
+                      <select class="form-control" id="posItemSelect">
+                        <option value="">-- اختر من الأصناف --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group col-4">
+                      <label class="form-label">اسم البند / الوصف</label>
+                      <input type="text" class="form-control" id="posItemName" placeholder="مثال: صاج مجلفن 2مم">
+                    </div>
+
+                    <div class="form-group col-4" id="posItemPriceGroup">
+                      <label class="form-label" id="posItemPriceLabel">السعر الفردي (ج.م)</label>
+                      <input type="number" step="any" class="form-control" id="posItemPrice" placeholder="0">
+                      <div id="posOperationalPriceNotice" style="display: none; font-size: 0.78rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">
+                        <i class="fa-solid fa-ban"></i> أمر تشغيل خارجي (بدون سعر)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group col-2">
+                      <label class="form-label">العرض (سم / م)</label>
+                      <input type="text" class="form-control" id="posItemWidth" placeholder="مثال: 120 سم">
+                    </div>
+                    <div class="form-group col-2">
+                      <label class="form-label">الطول (سم / م)</label>
+                      <input type="text" class="form-control" id="posItemLength" placeholder="مثال: 240 سم">
+                    </div>
+                    <div class="form-group col-2">
+                      <label class="form-label"><i class="fa-solid fa-ruler-vertical text-accent"></i> السُمك</label>
+                      <input type="text" class="form-control" id="posItemThickness" placeholder="مثال: 2 سم">
+                    </div>
+                    <div class="form-group col-2">
+                      <label class="form-label"><i class="fa-solid fa-bars-staggered text-accent"></i> عدد الدعامات</label>
+                      <input type="number" min="0" step="1" class="form-control" id="posItemSupports" placeholder="مثال: 4">
+                    </div>
+                    <div class="form-group col-2">
+                      <label class="form-label">الكمية / العدد</label>
+                      <input type="number" class="form-control" id="posItemQty" value="1" min="1">
+                    </div>
+                    <!-- Weight in Ton (Only for Supplier Invoice) -->
+                    <div class="form-group col-2" id="posSupplierWeightGroup" style="display: none;">
+                      <label class="form-label text-accent"><i class="fa-solid fa-weight-hanging"></i> الوزن (بالطن)</label>
+                      <input type="number" step="any" min="0" class="form-control" id="posItemWeightTon" placeholder="مثال: 2.5">
+                    </div>
+                    <div class="form-group col-2" id="posItemColorGroup">
+                      <label class="form-label d-flex justify-between align-center" for="posItemColorSelect">
+                        <span><i class="fa-solid fa-palette text-accent"></i> لون الصنف</span>
+                      </label>
+                      <div class="custom-color-select-wrapper" id="customColorSelectWrapper">
+                        <div class="custom-color-select-trigger" id="customColorSelectTrigger" tabindex="0">
+                          <div class="custom-color-current">
+                            <span class="color-dot default-dot" id="customColorCurrentDot"></span>
+                            <span class="color-text" id="customColorCurrentText">عادي (بدون لون)</span>
+                          </div>
+                          <i class="fa-solid fa-chevron-down custom-color-arrow"></i>
+                        </div>
+                        <div class="custom-color-dropdown-menu" id="customColorDropdownMenu">
+                          <div class="custom-color-opt active" data-value="">
+                            <span class="color-dot default-dot"></span>
+                            <span class="color-opt-name">عادي (بدون لون)</span>
+                          </div>
+                          <div class="custom-color-opt" data-value="اسود">
+                            <span class="color-dot dot-black"></span>
+                            <span class="color-opt-name">اسود</span>
+                          </div>
+                          <div class="custom-color-opt" data-value="بيج">
+                            <span class="color-dot dot-beige"></span>
+                            <span class="color-opt-name">بيج</span>
+                          </div>
+                          <div class="custom-color-opt" data-value="رصاصي">
+                            <span class="color-dot dot-lead"></span>
+                            <span class="color-opt-name">رصاصي</span>
+                          </div>
+                          <div class="custom-color-opt" data-value="رمادي">
+                            <span class="color-dot dot-gray"></span>
+                            <span class="color-opt-name">رمادي</span>
+                          </div>
+                          <div class="custom-color-opt" data-value="برتقالي">
+                            <span class="color-dot dot-orange"></span>
+                            <span class="color-opt-name">برتقالي</span>
+                          </div>
+                          <div class="custom-color-opt opt-custom-writer" data-value="custom">
+                            <span class="color-dot dot-custom"><i class="fa-solid fa-pen-nib"></i></span>
+                            <span class="color-opt-name">لون آخر (كتابة يدوية)...</span>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Hidden native select for backwards compatibility -->
+                      <select class="form-control" id="posItemColorSelect" style="display: none;">
+                        <option value="">عادي (بدون لون)</option>
+                        <option value="اسود">اسود</option>
+                        <option value="بيج">بيج</option>
+                        <option value="رصاصي">رصاصي</option>
+                        <option value="رمادي">رمادي</option>
+                        <option value="برتقالي">برتقالي</option>
+                        <option value="custom">لون آخر (كتابة يدوية)...</option>
+                      </select>
+                      <input type="text" class="form-control mt-1" id="posItemColor" placeholder="اكتب لون الصنف هنا..." style="display: none; height: 34px; font-size: 0.85rem; padding: 4px 10px;">
+                    </div>
+                    <div class="form-group col-2 d-flex align-end">
+                      <button type="button" class="btn btn-success w-100" id="btnAddToCart">
+                        <i class="fa-solid fa-plus-circle"></i> إضافة للفاتورة
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Quick Chips for 3 core items -->
+                  <div class="core-items-chips mt-2">
+                    <span class="chips-label">أصناف رئيسية سريعة:</span>
+                    <button type="button" class="chip-btn" data-category="صاج">
+                      <i class="fa-solid fa-sheet-plastic"></i> صاج
+                    </button>
+                    <button type="button" class="chip-btn" data-category="سبايك">
+                      <i class="fa-solid fa-cubes-stacked"></i> سبايك
+                    </button>
+                    <button type="button" class="chip-btn" data-category="مواسير">
+                      <i class="fa-solid fa-grip-lines-vertical"></i> مواسير
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Invoice Table -->
+                <div class="table-responsive pos-table-container mt-3">
+                  <table class="data-table" id="posCartTable">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>الصنف</th>
+                        <th>اللون</th>
+                        <th>العرض</th>
+                        <th>الطول</th>
+                        <th id="thCartThickness">السُمك</th>
+                        <th id="thCartSupports">الدعامات</th>
+                        <th id="thCartWeight" style="display: none;">الوزن (بالطن)</th>
+                        <th>الكمية</th>
+                        <th id="thCartPrice">السعر (ج.م)</th>
+                        <th id="thCartTotal">الإجمالي (ج.م)</th>
+                        <th class="text-center">إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody id="posCartBody">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                  <div class="empty-state" id="posEmptyCartNotice">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <p>لم يتم إضافة أي أصناف إلى الفاتورة بعد</p>
+                  </div>
+                </div>
+
+                <!-- Invoice Totals Summary Footer -->
+                <div class="invoice-summary-bar mt-3">
+                  <div class="summary-details" id="posNormalSummaryDetails">
+                    <div class="summary-item">
+                      <span>إجمالي البنود:</span>
+                      <strong id="posSubtotalDisplay">0 ج.م</strong>
+                    </div>
+                    <div class="summary-item">
+                      <span>الخصم:</span>
+                      <div class="input-with-currency">
+                        <input type="number" id="posDiscountInput" value="0" min="0" step="1">
+                        <small>ج.م</small>
+                      </div>
+                    </div>
+                    <div class="summary-item highlight">
+                      <span>الصافي النهائي:</span>
+                      <strong id="posGrandTotalDisplay">0 ج.م</strong>
+                    </div>
+                    <div class="summary-item" id="posSupplierTotalWeightItem" style="display: none;">
+                      <span class="text-accent"><i class="fa-solid fa-weight-hanging"></i> إجمالي الوزن:</span>
+                      <strong class="text-accent" id="posTotalWeightDisplay">0 طن</strong>
+                    </div>
+                  </div>
+
+                  <div class="operational-summary-details" id="posOperationalSummaryDetails" style="display: none;">
+                    <div class="op-summary-title">
+                      <i class="fa-solid fa-clipboard-check"></i> أمر تشغيل خارجي (بدون مطالبة مالية)
+                    </div>
+                    <div class="op-summary-meta">
+                      إجمالي الأصناف: <strong id="posOperationalItemsCount">0</strong> بند | إجمالي القطع: <strong id="posOperationalPiecesCount">0</strong> قطعة
+                    </div>
+                  </div>
+
+                  <div class="summary-actions">
+                    <button type="button" class="btn btn-outline-danger" id="btnClearCart">
+                      <i class="fa-solid fa-trash-can"></i> تفريغ
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelEditInvoice" style="display: none;" onclick="window.cancelInvoiceEdit()">
+                      <i class="fa-solid fa-xmark"></i> إلغاء التعديل
+                    </button>
+                    <button type="button" class="btn btn-accent btn-lg" id="btnSaveInvoice">
+                      <i class="fa-solid fa-floppy-disk"></i> حفظ الفاتورة والمعاينة
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================= TAB: ITEMS & INVENTORY ================= -->
+        <section class="tab-pane" id="pane-items">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchItemsInput" placeholder="بحث باسم الصنف، النوع، أو المقاسات...">
+            </div>
+            <div class="filter-pills" id="itemsCategoryFilter">
+              <button class="pill active" data-filter="all">الكل</button>
+              <button class="pill" data-filter="صاج">صاج</button>
+              <button class="pill" data-filter="سبايك">سبايك</button>
+              <button class="pill" data-filter="مواسير">مواسير</button>
+              <button class="pill" data-filter="أخرى">أصناف أخرى</button>
+            </div>
+            <button class="btn btn-primary" id="btnOpenAddItemModal">
+              <i class="fa-solid fa-plus"></i> إضافة صنف جديد
+            </button>
+          </div>
+
+          <!-- Items Table Card -->
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th># الكود</th>
+                      <th>اسم الصنف</th>
+                      <th>التصنيف الأساسي</th>
+                      <th>تاريخ الإضافة</th>
+                      <th class="text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="itemsTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: CUSTOMERS ================= -->
+        <section class="tab-pane" id="pane-customers">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchCustomersInput" placeholder="بحث بالاسم، رقم العميل، أو الهاتف...">
+            </div>
+            <div class="toolbar-actions d-flex gap-2">
+              <button class="btn btn-outline-primary" id="btnPrintCustomersReport">
+                <i class="fa-solid fa-print"></i> طباعة تقرير
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddCustomerModal">
+                <i class="fa-solid fa-user-plus"></i> إضافة عميل جديد
+              </button>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>رقم العميل</th>
+                      <th>اسم العميل</th>
+                      <th>رقم الهاتف</th>
+                      <th>العنوان</th>
+                      <th>عدد الفواتير</th>
+                      <th>ملاحظات</th>
+                      <th class="text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customersTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: SUPPLIERS ================= -->
+        <section class="tab-pane" id="pane-suppliers">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchSuppliersInput" placeholder="بحث باسم المورد، الهاتف أو السلع...">
+            </div>
+            <div class="toolbar-actions d-flex gap-2">
+              <button class="btn btn-outline-primary" id="btnPrintSuppliersReport">
+                <i class="fa-solid fa-print"></i> طباعة تقرير
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddSupplierModal">
+                <i class="fa-solid fa-truck-ramp-box"></i> إضافة مورد جديد
+              </button>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>كود المورد</th>
+                      <th>اسم المورد</th>
+                      <th>رقم الهاتف</th>
+                      <th>العنوان</th>
+                      <th>نوع التوريدات</th>
+                      <th class="text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="suppliersTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: OVENS ================= -->
+        <section class="tab-pane" id="pane-ovens">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchOvensInput" placeholder="بحث باسم الفرن، الهاتف أو العنوان...">
+            </div>
+            <div class="toolbar-actions d-flex gap-2">
+              <button class="btn btn-outline-primary" id="btnPrintOvensReport">
+                <i class="fa-solid fa-print"></i> طباعة تقرير
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddOvenModal">
+                <i class="fa-solid fa-fire"></i> إضافة فرن جديد
+              </button>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>كود الفرن</th>
+                      <th>اسم الفرن</th>
+                      <th>رقم الهاتف</th>
+                      <th>عنوان الفرن</th>
+                      <th>عدد الأوامر</th>
+                      <th>طاقة التشغيل / ملاحظات</th>
+                      <th class="text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ovensTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: CUTTERS ================= -->
+        <section class="tab-pane" id="pane-cutters">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchCuttersInput" placeholder="بحث باسم المقص، الهاتف أو العنوان...">
+            </div>
+            <div class="toolbar-actions d-flex gap-2">
+              <button class="btn btn-outline-primary" id="btnPrintCuttersReport">
+                <i class="fa-solid fa-print"></i> طباعة تقرير
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddCutterModal">
+                <i class="fa-solid fa-scissors"></i> إضافة مقص جديد
+              </button>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>كود المقص</th>
+                      <th>اسم المقص / الورشة</th>
+                      <th>رقم الهاتف</th>
+                      <th>عنوان المقص</th>
+                      <th>عدد الأوامر</th>
+                      <th>طاقة التشغيل / ملاحظات</th>
+                      <th class="text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cuttersTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: INVOICES ARCHIVE ================= -->
+        <section class="tab-pane" id="pane-invoices">
+          <div class="section-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchInvoicesInput" placeholder="بحث برقم الفاتورة، اسم الجهة، أو التاريخ...">
+            </div>
+            <div class="filter-pills" id="invoicesTypeFilter">
+              <button class="pill active" data-filter="all">جميع الفواتير</button>
+              <button class="pill" data-filter="customer">فواتير عملاء</button>
+              <button class="pill" data-filter="oven">فواتير أفران</button>
+              <button class="pill" data-filter="cutter">فواتير مقصات</button>
+              <button class="pill" data-filter="supplier">فواتير موردين</button>
+            </div>
+            <button class="btn btn-secondary" id="btnPrintInvoicesLog">
+              <i class="fa-solid fa-print"></i> طباعة السجل
+            </button>
+          </div>
+
+          <!-- Active Category Summary Banner (Requirement 4) -->
+          <div class="invoices-category-summary-bar mt-3" id="invoicesCategorySummaryBar">
+            <div class="cat-summary-info">
+              <span class="cat-icon"><i class="fa-solid fa-layer-group text-accent"></i></span>
+              <div>
+                <span class="cat-label">إجمالي القسم المحدد:</span>
+                <strong class="cat-title" id="activeInvoicesFilterName">جميع الفواتير</strong>
+              </div>
+            </div>
+            <div class="cat-summary-values">
+              <div class="val-box">
+                <span class="v-label">عدد الفواتير:</span>
+                <span class="v-num" id="activeInvoicesCount">0</span>
+              </div>
+              <div class="val-box highlight">
+                <span class="v-label">إجمالي الفواتير:</span>
+                <span class="v-num text-accent" id="activeInvoicesSum">0 ج.م</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoices Overview Stats -->
+          <div class="stats-row mt-3">
+            <div class="stat-card">
+              <div class="stat-icon icon-blue"><i class="fa-solid fa-file-invoice"></i></div>
+              <div class="stat-meta">
+                <span class="stat-label">إجمالي الفواتير</span>
+                <h4 id="statTotalInvoicesCount">0</h4>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-green"><i class="fa-solid fa-coins"></i></div>
+              <div class="stat-meta">
+                <span class="stat-label">إجمالي المبيعات (العملاء)</span>
+                <h4 id="statTotalSalesAmount">0 ج.م</h4>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-orange"><i class="fa-solid fa-cart-shopping"></i></div>
+              <div class="stat-meta">
+                <span class="stat-label">إجمالي المشتريات (الموردين)</span>
+                <h4 id="statTotalPurchasesAmount">0 ج.م</h4>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-red"><i class="fa-solid fa-fire"></i></div>
+              <div class="stat-meta">
+                <span class="stat-label">أوامر تشغيل الأفران</span>
+                <h4 id="statTotalOvensCount">0</h4>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background: rgba(168,85,247,0.15); color: #c084fc;"><i class="fa-solid fa-scissors"></i></div>
+              <div class="stat-meta">
+                <span class="stat-label">أوامر تشغيل المقصات</span>
+                <h4 id="statTotalCuttersCount">0</h4>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoices Table -->
+          <div class="card mt-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>رقم الفاتورة</th>
+                      <th>نوع الفاتورة</th>
+                      <th>الجهة المستفيدة</th>
+                      <th>رقم الهاتف</th>
+                      <th>التاريخ</th>
+                      <th>طريقة السداد</th>
+                      <th>اللون</th>
+                      <th>الصافي (ج.م)</th>
+                      <th class="text-center">إجراءات الفاتورة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoicesTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB: SETTINGS ================= -->
+        <section class="tab-pane" id="pane-settings">
+          <div class="settings-grid">
+
+            <!-- Factory Print Info Settings -->
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-print text-accent"></i> بيانات المصنع على الفاتورة المطبوعة</h3>
+                <span class="subtext">هذه البيانات تظهر في ترويسة وتذييل كل فاتورة</span>
+              </div>
+              <div class="card-body">
+                <form id="factorySettingsForm">
+                  <div class="form-row mb-3">
+                    <div class="form-group col-6">
+                      <label class="form-label">اسم المصنع <span class="required">*</span></label>
+                      <input type="text" class="form-control" id="settingFactoryName" value="مصنع (tow_a)" required>
+                    </div>
+                    <div class="form-group col-6">
+                      <label class="form-label">نشاط المصنع / الوصف الفرعي</label>
+                      <input type="text" class="form-control" id="settingFactorySub" value="لتصنيع الارفف والاستندات بتقنية الفايبر ليزر">
+                    </div>
+                  </div>
+                  <div class="form-row mb-3">
+                    <div class="form-group col-6">
+                      <label class="form-label">رقم هاتف المصنع <span class="required">*</span></label>
+                      <input type="text" class="form-control" id="settingFactoryPhone" value="01007585897" required>
+                    </div>
+                    <div class="form-group col-6">
+                      <label class="form-label">رقم هاتف إضافي / واتساب</label>
+                      <input type="text" class="form-control" id="settingFactoryPhone2" value="01102620836">
+                    </div>
+                  </div>
+                  <div class="form-row mb-3">
+                    <div class="form-group col-6">
+                      <label class="form-label">عنوان المصنع</label>
+                      <input type="text" class="form-control" id="settingFactoryAddress" value="عزبة عبدالله باشا الجديدة طريق النخل">
+                    </div>
+                    <div class="form-group col-6">
+                      <label class="form-label">رسالة تذييل الفاتورة</label>
+                      <input type="text" class="form-control" id="settingInvoiceFooterMsg" value="شكراً لتعاملكم مع مصنع tow_a لتصنيع الأرفف والاستندات بتقنية الفايبر ليزر">
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fa-solid fa-check"></i> حفظ بيانات المصنع
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- System Users & Permissions Card -->
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-users-gear text-accent"></i> إدارة حسابات وصلاحيات النظام</h3>
+                <span class="subtext">إضافة وتعديل حسابات المستخدمين وتعيين الصلاحيات وكلمات المرور لكل مستخدم</span>
+              </div>
+              <div class="card-body">
+                <!-- Add User Form -->
+                <form id="addUserForm" class="user-add-box mb-4">
+                  <h4 class="text-accent mb-3"><i class="fa-solid fa-user-plus"></i> إضافة حساب مستخدم جديد</h4>
+                  <div class="form-row mb-3">
+                    <div class="form-group col-4">
+                      <label class="form-label">اسم المستخدم / الموظف <span class="required">*</span></label>
+                      <input type="text" class="form-control" id="newUserName" placeholder="مثال: أحمد محمود" required>
+                    </div>
+                    <div class="form-group col-4">
+                      <label class="form-label">اسم تسجيل الدخول (Username) <span class="required">*</span></label>
+                      <input type="text" class="form-control" id="newUserLogin" placeholder="مثال: ahmed_pos" required>
+                    </div>
+                    <div class="form-group col-4">
+                      <label class="form-label">كلمة المرور <span class="required">*</span></label>
+                      <div class="password-input-wrapper">
+                        <input type="password" class="form-control" id="newUserPassword" placeholder="••••••••" required>
+                        <button type="button" class="btn-toggle-password" id="btnToggleNewPassword" title="إظهار / إخفاء كلمة المرور">
+                          <i class="fa-solid fa-eye" id="toggleNewPasswordIcon"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group mb-3">
+                    <label class="form-label mb-2"><i class="fa-solid fa-shield-halved text-accent"></i> تحديد الصلاحيات الممنوحة لهذا الحساب:</label>
+                    <div class="permissions-checklist">
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_pos" checked> <span>نقطة البيع وإصدار الفواتير</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_invoices" checked> <span>سجل وأرشيف الفواتير</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_items" checked> <span>الأصناف والمخزون</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_customers" checked> <span>إدارة العملاء</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_suppliers" checked> <span>إدارة الموردين</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_ovens" checked> <span>الأفران والتشغيل</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_cutters" checked> <span>المقصات والتشغيل</span></label>
+                      <label class="perm-checkbox-item"><input type="checkbox" id="perm_settings"> <span>إعدادات النظام والحسابات</span></label>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> إضافة الحساب إلى السيستم
+                  </button>
+                </form>
+
+                <!-- Users List Table -->
+                <h4 class="mb-3 text-muted"><i class="fa-solid fa-address-book"></i> الحسابات المسجلة بالسيستم</h4>
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>اسم الموظف</th>
+                        <th>اسم الدخول</th>
+                        <th>الصلاحيات الممنوحة</th>
+                        <th>تاريخ الإضافة</th>
+                        <th class="text-center">إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                      <!-- Rendered by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- INVOICE PREVIEW / PRINT / WHATSAPP / DOWNLOAD MODAL -->
+  <div class="modal-backdrop" id="invoiceModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header modal-header-actionable">
+          <div class="modal-header-top">
+            <div class="modal-title-group">
+              <h3 id="invoiceModalTitle">عرض الفاتورة</h3>
+              <span class="badge-status" id="invoiceModalStatusTag">فاتورة مؤكدة</span>
+            </div>
+            <!-- Close Modal Button (Always pinned and visible) -->
+            <button class="btn-close-modal" id="btnCloseInvoiceModal" title="إغلاق الفاتورة (Esc)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <div class="modal-actions-bar">
+            <!-- Edit Invoice Action -->
+            <button class="btn btn-action" id="btnModalEditInvoice" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);" title="تعديل بيانات وبنود هذه الفاتورة">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>تعديل الفاتورة</span>
+            </button>
+            <!-- Dispatch Actions for Customer Invoices -->
+            <button class="btn btn-action" id="btnModalDispatchOven" style="display: none; background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="إرسال أمر تشغيل للفرن">
+              <i class="fa-solid fa-fire"></i>
+              <span>أمر تشغيل فرن</span>
+            </button>
+            <button class="btn btn-action" id="btnModalDispatchCutter" style="display: none; background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);" title="إرسال أمر تفصيل للمقص (+8 سم عرض / +4 سم طول)">
+              <i class="fa-solid fa-scissors"></i>
+              <span>أمر مقص (+8 / +4)</span>
+            </button>
+            <!-- Download Image Button -->
+            <button class="btn btn-action btn-download-img" id="btnDownloadInvoiceImage" title="تنزيل الفاتورة كصورة PNG">
+              <i class="fa-solid fa-image"></i>
+              <span>تنزيل كصورة</span>
+            </button>
+            <!-- WhatsApp Share Button -->
+            <button class="btn btn-action btn-whatsapp" id="btnShareWhatsApp" title="إرسال الفاتورة عبر واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>إرسال واتساب</span>
+            </button>
+            <!-- Print Button -->
+            <button class="btn btn-action btn-print" id="btnPrintInvoice" title="طباعة الفاتورة">
+              <i class="fa-solid fa-print"></i>
+              <span>طباعة</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- PRINTABLE INVOICE SHEET (This element is converted to Image & Printed) -->
+          <div class="invoice-sheet" id="printableInvoiceSheet">
+            
+            <!-- Invoice Header -->
+            <div class="invoice-sheet-header">
+              <div class="sheet-logo-brand-group">
+                <div class="sheet-logo-box">
+                  <img src="assets/logo.jpg" alt="Logo" class="invoice-sheet-logo" id="invSheetLogoImg">
+                </div>
+                <div class="factory-info">
+                  <h1 class="factory-title" id="invSheetFactoryName">مصنع (tow_a)</h1>
+                  <p class="factory-sub" id="invSheetSub">لتصنيع الارفف والاستندات بتقنية الفايبر ليزر</p>
+                  <div class="factory-contact-row">
+                    <span><i class="fa-solid fa-phone"></i> <b id="invSheetFactoryPhone">01007585897</b> <span id="invSheetPhoneSeparator"> - </span> <b id="invSheetFactoryPhone2">01102620836</b></span>
+                    <span><i class="fa-solid fa-location-dot"></i> <span id="invSheetFactoryAddress">عزبة عبدالله باشا الجديدة طريق النخل</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="invoice-stamp-logo">
+                <div class="stamp-circle">
+                  <span class="stamp-brand">tow_a</span>
+                  <span class="stamp-text">فايبر ليزر</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Invoice Meta Grid -->
+            <div class="invoice-meta-banner">
+              <div class="meta-item">
+                <span class="m-label">رقم الفاتورة:</span>
+                <span class="m-val highlight" id="invSheetInvoiceNumber">INV-1001</span>
+              </div>
+              <div class="meta-item">
+                <span class="m-label">التاريخ:</span>
+                <span class="m-val" id="invSheetInvoiceDate">2026-10-01</span>
+              </div>
+              <div class="meta-item">
+                <span class="m-label">نوع الفاتورة:</span>
+                <span class="m-val badge-inv-type" id="invSheetInvoiceType">فاتورة عميل</span>
+              </div>
+              <div class="meta-item">
+                <span class="m-label">طريقة السداد:</span>
+                <span class="m-val" id="invSheetPaymentMethod">نقدي</span>
+              </div>
+              <div class="meta-item" id="invSheetColorMetaItem">
+                <span class="m-label">اللون:</span>
+                <span class="m-val" id="invSheetColor">-</span>
+              </div>
+              <div class="meta-item" id="invSheetWeightMetaItem" style="display: none; background: rgba(2, 132, 199, 0.08); border-color: rgba(2, 132, 199, 0.3);">
+                <span class="m-label" style="color: #0284c7;"><i class="fa-solid fa-weight-hanging"></i> وزن التوريد:</span>
+                <span class="m-val" id="invSheetMetaWeight" style="color: #0284c7; font-weight: 800;">0 طن</span>
+              </div>
+            </div>
+
+            <!-- Target Entity Box -->
+            <div class="entity-bill-box">
+              <div class="bill-title" id="invSheetEntityTitle">فاتورة صادرة إلى السيد / السادة:</div>
+              <div class="bill-details-grid">
+                <div><strong>الاسم:</strong> <span id="invSheetPartyName">العميل</span></div>
+                <div><strong>رقم الهاتف:</strong> <span id="invSheetPartyPhone">-</span></div>
+                <div><strong>العنوان / الكود:</strong> <span id="invSheetPartyAddress">-</span></div>
+              </div>
+            </div>
+
+            <!-- Linked Invoices Banner (Visible when linked to Oven or Cutter or Client) -->
+            <div class="linked-orders-banner" id="invSheetLinkedBanner" style="display: none;">
+              <i class="fa-solid fa-link text-accent"></i>
+              <strong style="margin-left: 6px;">الربط التشغيلي:</strong>
+              <span id="invSheetLinkedContent"></span>
+            </div>
+
+            <!-- Items Table -->
+            <table class="invoice-sheet-table" id="invSheetMainTable">
+              <thead id="invSheetTableHead">
+                <tr>
+                  <th style="width: 4%; text-align: center;" id="thSheetItemNum">#</th>
+                  <th style="width: 25%;" id="thSheetItemName">الصنف / المواصفات</th>
+                  <th style="width: 8%; text-align: center;" id="thSheetItemColor">اللون</th>
+                  <th style="width: 15%; text-align: center;" id="thSheetItemDims">العرض × الطول</th>
+                  <th style="width: 9%; text-align: center;" id="thSheetItemThickness">السُمك</th>
+                  <th style="width: 8%; text-align: center;" id="thSheetItemSupports">الدعامات</th>
+                  <th style="width: 7%; text-align: center;" id="thSheetItemQty">الكمية</th>
+                  <th style="width: 9%; text-align: center; display: none;" id="thSheetWeight">الوزن (بالطن)</th>
+                  <th style="width: 11%; text-align: center;" id="thSheetPrice">السعر</th>
+                  <th style="width: 13%; text-align: center;" id="thSheetTotal">الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody id="invSheetTableBody">
+                <!-- Items dynamically injected -->
+              </tbody>
+            </table>
+
+            <!-- Operational Notice for Oven & Cutter (No Price) -->
+            <div id="invSheetOperationalNotice" style="display: none; margin: 15px 0; padding: 12px 16px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 8px; text-align: center;">
+              <strong style="color: #b45309; font-size: 1.02rem;"><i class="fa-solid fa-clipboard-check"></i> أمر تشغيل وتصنيع خارجي (بدون مطالبة مالية)</strong>
+              <p style="margin: 4px 0 0 0; color: #78350f; font-size: 0.85rem;">يتم تسليم واستلام الخامات والأصناف وفق المقاسات والمواصفات المبينة أعلاه، وتتم المحاسبة وفق كشف الحساب المعتمد.</p>
+            </div>
+
+            <!-- Calculation Totals Box -->
+            <div class="invoice-sheet-totals" id="invSheetTotalsBox">
+              <div class="totals-left-notes">
+                <strong>ملاحظات:</strong>
+                <p id="invSheetNotesText">لا توجد ملاحظات إضافية.</p>
+              </div>
+              <div class="totals-right-table">
+                <div class="t-row">
+                  <span>إجمالي البنود:</span>
+                  <span id="invSheetSubtotal">0 ج.م</span>
+                </div>
+                <div class="t-row" id="invSheetDiscountRow">
+                  <span>الخصم:</span>
+                  <span id="invSheetDiscount">0 ج.م</span>
+                </div>
+                <div class="t-row" id="invSheetWeightRow" style="display: none; background: rgba(2, 132, 199, 0.08); padding: 6px 10px; border-radius: 6px; margin: 4px 0;">
+                  <span style="font-weight: 700; color: #0369a1;"><i class="fa-solid fa-weight-hanging"></i> إجمالي الوزن بالطن:</span>
+                  <span id="invSheetTotalWeight" style="color: #0284c7; font-weight: 800; font-size: 1.05rem;">0 طن</span>
+                </div>
+                <div class="t-row grand-total">
+                  <span>الصافي المطلوب:</span>
+                  <span id="invSheetGrandTotal">0 ج.م</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signatures & Footer -->
+            <div class="invoice-sheet-signatures">
+              <div class="sig-box">
+                <span>توقيع المستلم: ________________</span>
+              </div>
+              <div class="sig-box">
+                <span>مسؤول الحسابات: ________________</span>
+              </div>
+              <div class="sig-box">
+                <span>ختم المصنع: ________________</span>
+              </div>
+            </div>
+
+            <div class="invoice-sheet-footer">
+              <p id="invSheetFooterText">البضاعة المباعة لا ترد ولا تستبدل بعد مغادرة المصنع - شكراً لتعاملكم مع مصنع تو-A</p>
+              <small>تم إصدار هذه الفاتورة إلكترونياً عبر نظام مصنع تو-A الذكي</small>
+            </div>
+
+          </div>
+          <!-- END PRINTABLE SHEET -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT ITEM MODAL -->
+  <div class="modal-backdrop" id="itemModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="itemModalTitle">إضافة صنف جديد</h3>
+          <button class="btn-close-modal" id="btnCloseItemModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="itemForm">
+          <div class="modal-body">
+            <input type="hidden" id="itemFormId">
+            <div class="form-group mb-3">
+              <label class="form-label">اسم الصنف <span class="required">*</span></label>
+              <input type="text" class="form-control" id="itemFormName" placeholder="مثال: صاج أسود 3مم" required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">التصنيف الأساسي <span class="required">*</span></label>
+              <select class="form-control" id="itemFormCategory" required>
+                <option value="صاج">صاج</option>
+                <option value="سبايك">سبايك</option>
+                <option value="مواسير">مواسير</option>
+                <option value="أخرى">أخرى</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelItemModal">إلغاء</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveItemModal">حفظ الصنف</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT CUSTOMER MODAL -->
+  <div class="modal-backdrop" id="customerModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="customerModalTitle">إضافة عميل جديد</h3>
+          <button class="btn-close-modal" id="btnCloseCustomerModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="customerForm">
+          <div class="modal-body">
+            <input type="hidden" id="customerFormId">
+            <div class="form-row mb-3">
+              <div class="form-group col-8">
+                <label class="form-label">اسم العميل <span class="required">*</span></label>
+                <input type="text" class="form-control" id="customerFormName" placeholder="مثال: شركة النصر للمقاولات" required>
+              </div>
+              <div class="form-group col-4">
+                <label class="form-label">رقم العميل / الكود</label>
+                <input type="text" class="form-control" id="customerFormCode" placeholder="CUS-001">
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">رقم الهاتف <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="customerFormPhone" placeholder="01xxxxxxxxx" required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">عنوان العميل</label>
+              <input type="text" class="form-control" id="customerFormAddress" placeholder="المدينة، الحي، الشارع...">
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">ملاحظات</label>
+              <textarea class="form-control" id="customerFormNotes" rows="2" placeholder="ملاحظات الحساب أو التعامل"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelCustomerModal">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ العميل</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT SUPPLIER MODAL -->
+  <div class="modal-backdrop" id="supplierModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="supplierModalTitle">إضافة مورد جديد</h3>
+          <button class="btn-close-modal" id="btnCloseSupplierModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="supplierForm">
+          <div class="modal-body">
+            <input type="hidden" id="supplierFormId">
+            <div class="form-row mb-3">
+              <div class="form-group col-8">
+                <label class="form-label">اسم المورد <span class="required">*</span></label>
+                <input type="text" class="form-control" id="supplierFormName" placeholder="مثال: شركة الحديد والصلب" required>
+              </div>
+              <div class="form-group col-4">
+                <label class="form-label">كود المورد</label>
+                <input type="text" class="form-control" id="supplierFormCode" placeholder="SUP-001">
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">رقم الهاتف <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="supplierFormPhone" placeholder="01xxxxxxxxx" required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">عنوان المورد</label>
+              <input type="text" class="form-control" id="supplierFormAddress" placeholder="عنوان المقر أو المخزن">
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">نوع التوريدات</label>
+              <input type="text" class="form-control" id="supplierFormSupplies" placeholder="مثال: خام حديد، خردة، زنك...">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelSupplierModal">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ المورد</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT OVEN MODAL -->
+  <div class="modal-backdrop" id="ovenModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="ovenModalTitle">إضافة فرن جديد</h3>
+          <button class="btn-close-modal" id="btnCloseOvenModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="ovenForm">
+          <div class="modal-body">
+            <input type="hidden" id="ovenFormId">
+            <div class="form-row mb-3">
+              <div class="form-group col-8">
+                <label class="form-label">اسم الفرن <span class="required">*</span></label>
+                <input type="text" class="form-control" id="ovenFormName" placeholder="مثال: فرن الأمل لصهر وسحب المعادن" required>
+              </div>
+              <div class="form-group col-4">
+                <label class="form-label">كود الفرن</label>
+                <input type="text" class="form-control" id="ovenFormCode" placeholder="OVN-001">
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">رقم هاتف الفرن <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="ovenFormPhone" placeholder="01xxxxxxxxx" required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">عنوان الفرن <span class="required">*</span></label>
+              <input type="text" class="form-control" id="ovenFormAddress" placeholder="المنطقة، الشارع، الموقع..." required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">طاقة التشغيل / ملاحظات</label>
+              <textarea class="form-control" id="ovenFormNotes" rows="2" placeholder="نوع الصهر، أقصى درجة حرارة، سعة البوتقة..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelOvenModal">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ بيانات الفرن</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT CUTTER MODAL -->
+  <div class="modal-backdrop" id="cutterModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="cutterModalTitle">إضافة مقص جديد</h3>
+          <button class="btn-close-modal" id="btnCloseCutterModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="cutterForm">
+          <div class="modal-body">
+            <input type="hidden" id="cutterFormId">
+            <div class="form-row mb-3">
+              <div class="form-group col-8">
+                <label class="form-label">اسم المقص / الورشة <span class="required">*</span></label>
+                <input type="text" class="form-control" id="cutterFormName" placeholder="مثال: ورشة ومقص الأهرام لتفصيل الصاج" required>
+              </div>
+              <div class="form-group col-4">
+                <label class="form-label">كود المقص</label>
+                <input type="text" class="form-control" id="cutterFormCode" placeholder="CUT-001">
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">رقم هاتف المقص <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="cutterFormPhone" placeholder="01xxxxxxxxx" required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">عنوان المقص <span class="required">*</span></label>
+              <input type="text" class="form-control" id="cutterFormAddress" placeholder="المنطقة، الشارع، الموقع..." required>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">طاقة التشغيل / ملاحظات</label>
+              <textarea class="form-control" id="cutterFormNotes" rows="2" placeholder="أقصى تخانة صاج، مقاسات السلاح، أوقات العمل..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelCutterModal">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ بيانات المقص</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPATCH MANUAL OPERATION MODAL -->
+  <div class="modal-backdrop" id="dispatchModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="dispatchModalTitle"><i class="fa-solid fa-paper-plane text-accent"></i> إصدار أمر تشغيل</h3>
+          <button class="btn-close-modal" id="btnCloseDispatchModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="dispatchForm">
+          <div class="modal-body">
+            <input type="hidden" id="dispatchTargetType" value="oven">
+            <input type="hidden" id="dispatchSourceInvoiceNum">
+
+            <!-- Source Invoice Badge / Information Banner -->
+            <div id="dispatchSourceInvoiceInfo" style="padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+              <span>فاتورة العميل: <strong id="dispatchSourceInvoiceBadge" class="text-accent">-</strong></span>
+              <span id="dispatchSourceCustomerBadge" style="color: var(--text-secondary); font-weight: 600;">-</span>
+            </div>
+
+            <!-- Operation Target Type Radio Selection (فرن أو مقص) -->
+            <div class="form-group mb-3">
+              <label class="form-label" style="font-weight: 700; margin-bottom: 8px;">اختر نوع أمر التشغيل: <span class="required">*</span></label>
+              <div class="dispatch-type-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <label class="dispatch-type-card active" id="dispatchCardOven" style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.1); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="dispatchTargetTypeRadio" id="radioDispatchOven" value="oven" checked style="accent-color: #ef4444; width: 18px; height: 18px; cursor: pointer;">
+                  <div style="cursor: pointer; flex: 1;">
+                    <strong style="color: #f87171; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+                      <i class="fa-solid fa-fire"></i> أمر تشغيل فرن
+                    </strong>
+                    <small style="color: var(--text-muted); font-size: 0.78rem; display: block; margin-top: 2px;">المقاسات كما هي دون تعديل</small>
+                  </div>
+                </label>
+
+                <label class="dispatch-type-card" id="dispatchCardCutter" style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid var(--border-color); background: rgba(255, 255, 255, 0.02); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="dispatchTargetTypeRadio" id="radioDispatchCutter" value="cutter" style="accent-color: #c084fc; width: 18px; height: 18px; cursor: pointer;">
+                  <div style="cursor: pointer; flex: 1;">
+                    <strong style="color: #c084fc; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+                      <i class="fa-solid fa-scissors"></i> أمر تشغيل مقص
+                    </strong>
+                    <small style="color: var(--text-muted); font-size: 0.78rem; display: block; margin-top: 2px;">زيادة +8 سم عرض / +4 سم طول</small>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div id="dispatchInfoAlert" style="padding: 10px 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; margin-bottom: 14px; font-size: 0.88rem; color: #bae6fd;">
+              <!-- Populated dynamically -->
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label" id="dispatchSelectLabel">اختر فرن التشغيل <span class="required">*</span></label>
+              <select class="form-control" id="dispatchSelectEntity" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label">ملاحظات إضافية على أمر التشغيل</label>
+              <textarea class="form-control" id="dispatchNotes" rows="2" placeholder="ملاحظات تفصيل، مواعيد، أو استلام..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelDispatchModal">إلغاء</button>
+            <button type="submit" class="btn btn-accent"><i class="fa-solid fa-paper-plane"></i> إصدار أمر التشغيل فوراً</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ACCOUNT STATEMENT MODAL (كشف حساب) ================= -->
+  <div class="modal-backdrop" id="statementModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header modal-header-actionable">
+          <div class="modal-header-top">
+            <div class="modal-title-group">
+              <h3 id="statementModalTitle"><i class="fa-solid fa-file-invoice-dollar text-accent"></i> كشف حساب مالي تفصيلي</h3>
+              <span class="badge-status" id="statementPartyTypeTag">كشف حساب</span>
+            </div>
+            <!-- Close Modal Button (Always pinned and visible) -->
+            <button class="btn-close-modal" id="btnCloseStatementModal" title="إغلاق كشف الحساب (Esc)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <div class="modal-actions-bar">
+            <!-- Download Statement Image Button -->
+            <button class="btn btn-action btn-download-img" id="btnDownloadStatementImage" title="تنزيل كشف الحساب كصورة">
+              <i class="fa-solid fa-image"></i>
+              <span>تنزيل كصورة</span>
+            </button>
+            <!-- Send Statement via WhatsApp Button -->
+            <button class="btn btn-action btn-whatsapp" id="btnShareStatementWhatsApp" title="إرسال كشف الحساب عبر واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>إرسال عبر واتساب</span>
+            </button>
+            <!-- Print Statement Button -->
+            <button class="btn btn-action btn-print" id="btnPrintStatement" title="طباعة كشف الحساب">
+              <i class="fa-solid fa-print"></i>
+              <span>طباعة كشف الحساب</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body p-4 bg-light">
+          <!-- PRINTABLE STATEMENT SHEET -->
+          <div class="invoice-sheet" id="printableStatementSheet">
+            <!-- Header -->
+            <div class="invoice-sheet-header">
+              <div class="sheet-logo-brand-group">
+                <div class="sheet-logo-box">
+                  <img src="assets/logo.jpg" alt="Logo" class="invoice-sheet-logo" id="stmtSheetLogoImg">
+                </div>
+                <div class="factory-info">
+                  <h1 class="factory-title" id="stmtFactoryName">مصنع (tow_a)</h1>
+                  <p class="factory-sub" id="stmtFactorySub">لتصنيع الارفف والاستندات بتقنية الفايبر ليزر</p>
+                  <div class="factory-contact-row">
+                    <span><i class="fa-solid fa-phone"></i> <b id="stmtFactoryPhone">01007585897 - 01102620836</b></span>
+                    <span><i class="fa-solid fa-location-dot"></i> <span id="stmtFactoryAddress">عزبة عبدالله باشا الجديدة طريق النخل</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="invoice-stamp-logo">
+                <div class="stamp-circle">
+                  <span class="stamp-brand">tow_a</span>
+                  <span class="stamp-text">كشف حساب</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Statement Title Banner -->
+            <div class="statement-banner-strip">
+              <div class="s-banner-title">
+                <h2>كشف حساب مالي وحركات الفواتير</h2>
+                <small id="stmtSubTitle">تقرير تفصيلي بكافة التعاملات والمبالغ المسجلة</small>
+              </div>
+              <div class="s-banner-meta">
+                <div><strong>تاريخ التقرير:</strong> <span id="stmtPrintDate">-</span></div>
+                <div><strong>نوع الحساب:</strong> <span id="stmtPartyTypeBadge" class="badge-status">-</span></div>
+              </div>
+            </div>
+
+            <!-- Party Details Box -->
+            <div class="entity-bill-box">
+              <div class="bill-title" id="stmtPartyTitle">بيانات صاحب الحساب:</div>
+              <div class="bill-details-grid">
+                <div><strong>كود الحساب:</strong> <span id="stmtPartyCode" class="text-accent">-</span></div>
+                <div><strong>الاسم:</strong> <strong id="stmtPartyName">-</strong></div>
+                <div><strong>رقم الهاتف:</strong> <span id="stmtPartyPhone">-</span></div>
+                <div><strong>العنوان:</strong> <span id="stmtPartyAddress">-</span></div>
+              </div>
+            </div>
+
+            <!-- Statement Summary Metric Cards -->
+            <div class="statement-metrics-grid">
+              <div class="stmt-metric-card">
+                <span class="m-title">عدد الفواتير الإجمالي</span>
+                <h3 id="stmtCountVal">0</h3>
+              </div>
+              <div class="stmt-metric-card highlight">
+                <span class="m-title">إجمالي المبالغ المستحقة</span>
+                <h3 id="stmtTotalVal">0 ج.م</h3>
+              </div>
+              <div class="stmt-metric-card">
+                <span class="m-title">تاريخ أول فاتورة</span>
+                <h4 id="stmtFirstDateVal">-</h4>
+              </div>
+              <div class="stmt-metric-card">
+                <span class="m-title">تاريخ آخر فاتورة</span>
+                <h4 id="stmtLastDateVal">-</h4>
+              </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <table class="invoice-sheet-table statement-main-table">
+              <thead>
+                <tr>
+                  <th style="width: 5%;">#</th>
+                  <th style="width: 15%;">رقم الفاتورة</th>
+                  <th style="width: 15%;">التاريخ</th>
+                  <th style="width: 15%;">طريقة السداد</th>
+                  <th style="width: 30%;">بيان ومحتويات الفاتورة</th>
+                  <th style="width: 20%;">الصافي المستحق</th>
+                </tr>
+              </thead>
+              <tbody id="stmtInvoicesBody">
+                <!-- Dynamically injected -->
+              </tbody>
+              <tfoot>
+                <tr class="stmt-tfoot-row">
+                  <td colspan="5" class="text-start"><strong>الإجمالي النهائي لكشف الحساب:</strong></td>
+                  <td><strong id="stmtFooterGrandTotal" class="text-accent">0 ج.م</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PRINTABLE GENERAL REPORT CONTAINER (FOR SECTION REPORTS & INVOICE LOG) ================= -->
+  <div id="printableReportContainer" class="printable-report-sheet" style="display: none;">
+    <!-- Injected dynamically before print -->
+  </div>
+
+  <!-- EDIT USER MODAL -->
+  <div class="modal-backdrop" id="editUserModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h3 id="editUserModalTitle"><i class="fa-solid fa-user-pen text-accent"></i> تعديل بيانات الحساب</h3>
+            <span class="subtext">تعديل بيانات المستخدم وكلمة المرور والصلاحيات</span>
+          </div>
+          <button type="button" class="btn-close-modal" id="btnCloseEditUserModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="editUserForm">
+          <div class="modal-body">
+            <input type="hidden" id="editUserId">
+            
+            <div class="form-row mb-3">
+              <div class="form-group col-6">
+                <label class="form-label">اسم المستخدم / الموظف <span class="required">*</span></label>
+                <input type="text" class="form-control" id="editUserName" placeholder="مثال: أحمد محمود" required>
+              </div>
+              <div class="form-group col-6">
+                <label class="form-label">اسم تسجيل الدخول (Username) <span class="required">*</span></label>
+                <input type="text" class="form-control" id="editUserLogin" placeholder="مثال: ahmed_pos" required>
+              </div>
+            </div>
+
+            <!-- Single Password Field with current password visible and changeable -->
+            <div class="form-group mb-3">
+              <label class="form-label">كلمة المرور <span class="required">*</span></label>
+              <div class="password-input-wrapper">
+                <input type="password" class="form-control" id="editUserPassword" placeholder="أدخل كلمة المرور الجديدة إذا رغبت" required>
+                <button type="button" class="btn-toggle-password" id="btnToggleEditPassword" title="إظهار / إخفاء كلمة المرور">
+                  <i class="fa-solid fa-eye" id="toggleEditPasswordIcon"></i>
+                </button>
+              </div>
+              <small class="text-muted" style="display: block; margin-top: 6px; font-size: 0.82rem;">
+                <i class="fa-solid fa-circle-info text-accent"></i> تظهر كلمة المرور الحالية داخل المربع ويمكنك الضغط على رمز العين لرؤيتها وتغييرها مباشرة.
+              </small>
+            </div>
+
+            <div class="form-group mb-2">
+              <label class="form-label mb-2"><i class="fa-solid fa-shield-halved text-accent"></i> تحديد الصلاحيات الممنوحة:</label>
+              <div id="editAdminPermNotice" class="alert alert-info py-2 px-3 mb-2" style="display: none; font-size: 0.82rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: var(--radius-sm);">
+                <i class="fa-solid fa-shield-halved"></i> حساب مدير النظام الرئيسي يتمتع بكافة الصلاحيات تلقائياً لحماية أمان وتشغيل السيستم.
+              </div>
+              <div class="permissions-checklist">
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_pos"> <span>نقطة البيع وإصدار الفواتير</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_invoices"> <span>سجل وأرشيف الفواتير</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_items"> <span>الأصناف والمخزون</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_customers"> <span>إدارة العملاء</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_suppliers"> <span>إدارة الموردين</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_ovens"> <span>الأفران والتشغيل</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_cutters"> <span>المقصات والتشغيل</span></label>
+                <label class="perm-checkbox-item"><input type="checkbox" id="edit_perm_settings"> <span>إعدادات النظام والحسابات</span></label>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelEditUserModal">إلغاء</button>
+            <button type="submit" class="btn btn-accent"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP SEND AS IMAGE MODAL -->
+  <div class="modal-backdrop" id="whatsappModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background: linear-gradient(135deg, rgba(37,211,102,0.12) 0%, rgba(18,140,126,0.12) 100%);">
+          <div class="modal-title-group">
+            <h3 style="color: #25d366;"><i class="fa-brands fa-whatsapp"></i> إرسال الفاتورة كصورة عبر واتساب</h3>
+            <span class="subtext" id="whatsappModalSubtitle">مشاركة الفاتورة كملف صورة عالي الدقة</span>
+          </div>
+          <button type="button" class="btn-close-modal" id="btnCloseWhatsappModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body p-4">
+          
+          <!-- Target Phone Selection & Modification Box -->
+          <div class="whatsapp-phone-box mb-3" style="background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.28); border-radius: var(--radius-md); padding: 12px 16px;">
+            <label class="form-label d-flex justify-between align-center mb-1" style="font-weight: 700; color: #34d399;">
+              <span><i class="fa-solid fa-phone"></i> رقم هاتف الواتساب المستهدف للإرسال:</span>
+              <span class="badge-status" style="font-size: 0.72rem; color: #25d366; border-color: rgba(37,211,102,0.3);">يمكنك إرسالها لأي رقم</span>
+            </label>
+            <div class="input-group d-flex gap-2 mt-2">
+              <input type="text" class="form-control" id="whatsappTargetPhoneInput" placeholder="أدخل رقم الواتساب (مثال: 010... أو 2010...)" style="direction: ltr; text-align: left; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px;">
+              <button type="button" class="btn btn-outline-secondary" id="btnResetToOriginalPhone" title="استعادة رقم العميل الأصلي للفاتورة" style="white-space: nowrap;">
+                <i class="fa-solid fa-rotate-left"></i> رقم العميل
+              </button>
+            </div>
+            <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+              <i class="fa-solid fa-circle-info text-accent"></i> اكتب رقم أي جهة ترغب بالإرسال إليها (سائق، ورشة، مقاول، عميل آخر) وسيتم فتح المحادثة مباشرة معه.
+            </small>
+          </div>
+
+          <!-- Instructions card -->
+          <div class="whatsapp-instruction-card mb-3">
+            <div class="instruction-step">
+              <span class="step-icon check"><i class="fa-solid fa-circle-check"></i></span>
+              <div class="step-content">
+                <strong>تم نسخ صورة الفاتورة إلى الحافظة (Clipboard) بنجاح</strong>
+                <p>اضغط <code>Ctrl + V</code> داخل محادثة الواتساب للصق الصورة وإرسالها فوراً</p>
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-icon check"><i class="fa-solid fa-circle-check"></i></span>
+              <div class="step-content">
+                <strong>تم تنزيل ملف الصورة أيضاً في مجلد التنزيلات</strong>
+                <p>الملف متاح بجهازك كنسخة عالية الدقة للإرفاق في أي وقت</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Preview -->
+          <div class="whatsapp-image-preview-wrapper mb-3">
+            <div class="preview-header">
+              <span><i class="fa-solid fa-image text-accent"></i> معاينة صورة الفاتورة المستخرجة:</span>
+            </div>
+            <div class="preview-image-scroll">
+              <img id="whatsappPreviewImg" src="" alt="معاينة الفاتورة">
+            </div>
+          </div>
+
+          <!-- Actions Bar -->
+          <div class="d-flex justify-between align-center flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary" id="btnCopyImageAgain">
+              <i class="fa-solid fa-copy"></i> إعادة نسخ الصورة
+            </button>
+            
+            <div class="d-flex gap-2 flex-wrap">
+              <!-- General WhatsApp Web to pick any chat -->
+              <a href="https://web.whatsapp.com" target="_blank" class="btn btn-outline-secondary" style="padding: 10px 14px; font-size: 0.88rem;" title="فتح واتساب ويب لاختيار أي محادثة من القائمة مباشرة">
+                <i class="fa-solid fa-comments"></i> اختيار من المحادثات
+              </a>
+              <!-- WhatsApp Web Option -->
+              <a id="btnOpenWhatsAppWeb" href="#" target="_blank" class="btn btn-action btn-whatsapp" style="padding: 10px 18px; font-size: 0.92rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fa-brands fa-whatsapp"></i> فتح واتساب ويب للرقم المحدد
+              </a>
+              <!-- WhatsApp Desktop / App Direct Option -->
+              <a id="btnOpenWhatsAppApp" href="#" target="_blank" class="btn btn-action btn-outline-success" style="padding: 10px 14px; font-size: 0.88rem; border-color: #25d366; color: #25d366;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> تطبيق الواتساب
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCK SCREEN / LOGIN MODAL -->
+  <div class="modal-backdrop" id="lockModal" style="display: none;">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content lock-card">
+        <div class="lock-avatar">
+          <i class="fa-solid fa-shield-cat"></i>
+        </div>
+        <h3>مصنع تو-A</h3>
+        <p class="text-muted">الرجاء إدخال كلمة المرور للمتابعة</p>
+        <form id="lockLoginForm">
+          <div class="form-group mb-3 text-start">
+            <label class="form-label">اختيار الحساب / المستخدم</label>
+            <select class="form-control" id="lockUserSelect">
+              <!-- Populated dynamically with registered system users -->
+            </select>
+          </div>
+          <div class="form-group mb-3 text-start">
+            <label class="form-label">كلمة المرور</label>
+            <input type="password" class="form-control" id="lockPasswordInput" placeholder="••••••" required autofocus>
+          </div>
+          <div id="lockErrorMsg" class="alert alert-danger" style="display: none;">
+            كلمة المرور غير صحيحة!
+          </div>
+          <button type="submit" class="btn btn-accent w-100 btn-lg">
+            <i class="fa-solid fa-unlock-keyhole"></i> تسجيل الدخول للنظام
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- App Logic Scripts (Modular Architecture) -->
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/pos.js"></script>
+  <script src="js/print.js"></script>
+  <script src="js/invoices.js"></script>
+  <script src="js/api-bridge.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
