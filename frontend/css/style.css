@@ -2549,7 +2549,21 @@ i.fa-whatsapp::before,
 /* ================= LOCK SCREEN MODAL ================= */
 .lock-card {
   text-align: center;
-  padding: 20px;
+  padding: 28px 24px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+.lock-card .form-control {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+}
+
+.lock-card .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
 .lock-avatar {

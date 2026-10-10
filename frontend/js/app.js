@@ -95,6 +95,13 @@
         (window.App.Auth.applyCurrentUserPermissions || window.App.Auth.applyPermissions)();
       }
     } catch (err) { console.error('Error in applyCurrentUserPermissions:', err); }
+
+    // 7. Check Initial Authentication (Login Prompt on Startup)
+    try {
+      if (window.App.Auth && window.App.Auth.checkInitialAuth) {
+        window.App.Auth.checkInitialAuth();
+      }
+    } catch (err) { console.error('Error in checkInitialAuth:', err); }
   }
 
   // ================= DOM ELEMENT CACHE =================
@@ -470,8 +477,13 @@
       // Lock Screen / Account Switch
       lockModal: document.getElementById('lockModal'),
       lockLoginForm: document.getElementById('lockLoginForm'),
+      lockUsernameInput: document.getElementById('lockUsernameInput'),
       lockUserSelect: document.getElementById('lockUserSelect'),
       lockPasswordInput: document.getElementById('lockPasswordInput'),
+      btnToggleLockPassword: document.getElementById('btnToggleLockPassword'),
+      toggleLockPasswordIcon: document.getElementById('toggleLockPasswordIcon'),
+      btnQuickFillAdmin: document.getElementById('btnQuickFillAdmin'),
+      btnSubmitLogin: document.getElementById('btnSubmitLogin'),
       lockErrorMsg: document.getElementById('lockErrorMsg'),
 
       // Toasts
@@ -709,6 +721,37 @@
     if (DOM.lockLoginForm) {
       DOM.lockLoginForm.addEventListener('submit', (e) => {
         if (window.App.Auth) window.App.Auth.unlockScreen(e);
+      });
+    }
+
+    // Toggle password visibility on login screen
+    if (DOM.btnToggleLockPassword && DOM.lockPasswordInput) {
+      DOM.btnToggleLockPassword.addEventListener('click', () => {
+        const isPass = DOM.lockPasswordInput.type === 'password';
+        DOM.lockPasswordInput.type = isPass ? 'text' : 'password';
+        if (DOM.toggleLockPasswordIcon) {
+          DOM.toggleLockPasswordIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+      });
+    }
+
+    // Quick fill default admin credentials button
+    if (DOM.btnQuickFillAdmin) {
+      DOM.btnQuickFillAdmin.addEventListener('click', () => {
+        if (DOM.lockUsernameInput) DOM.lockUsernameInput.value = 'admin';
+        if (DOM.lockPasswordInput) DOM.lockPasswordInput.value = '123';
+        if (DOM.lockErrorMsg) DOM.lockErrorMsg.style.display = 'none';
+        if (DOM.lockPasswordInput) DOM.lockPasswordInput.focus();
+      });
+    }
+
+    // Selecting a user from dropdown fills the username input
+    if (DOM.lockUserSelect) {
+      DOM.lockUserSelect.addEventListener('change', () => {
+        if (DOM.lockUserSelect.value && DOM.lockUsernameInput) {
+          DOM.lockUsernameInput.value = DOM.lockUserSelect.value;
+          if (DOM.lockPasswordInput) DOM.lockPasswordInput.focus();
+        }
       });
     }
 

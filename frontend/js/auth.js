@@ -260,39 +260,78 @@ window.App = window.App || {};
     App.Utils.showToast('تم حفظ تعديلات الحساب بنجاح');
   }
 
+  const SESSION_AUTH_KEY = 'twoA_session_authenticated';
+
   function populateLockUserSelect() {
     const DOM = App.DOM;
     if (!DOM || !DOM.lockUserSelect) return;
     const users = AppStore.getUsers();
-    const currentUser = AppStore.getCurrentUser();
-    DOM.lockUserSelect.innerHTML = '';
+    DOM.lockUserSelect.innerHTML = '<option value="">-- سريع --</option>';
     users.forEach(u => {
       const opt = document.createElement('option');
       opt.value = u.username;
-      const roleText = u.role === 'admin' || u.username === 'admin' ? 'مدير النظام' : 'مستخدم مصرح';
-      opt.textContent = `${u.name} (@${u.username}) - ${roleText}`;
-      if (currentUser && currentUser.username === u.username) {
-        opt.selected = true;
-      }
+      const roleText = u.role === 'admin' || u.username === 'admin' ? 'مدير عام' : (u.role || 'مستخدم');
+      opt.textContent = `${u.name} (@${u.username})`;
       DOM.lockUserSelect.appendChild(opt);
     });
   }
 
-  function triggerLockScreen(isLogout = false) {
+  function triggerLockScreen(isLogout = false, isInitialStartup = false) {
     const DOM = App.DOM;
     if (!DOM) return;
+
+    // Clear session flag on lock or logout
+    sessionStorage.removeItem(SESSION_AUTH_KEY);
+
     populateLockUserSelect();
-    DOM.lockModal.style.display = 'flex';
-    DOM.lockPasswordInput.value = '';
-    DOM.lockErrorMsg.style.display = 'none';
+    if (DOM.lockModal) {
+      DOM.lockModal.classList.add('open');
+      DOM.lockModal.style.display = 'flex';
+    }
+    if (DOM.lockPasswordInput) DOM.lockPasswordInput.value = '';
+    if (DOM.lockErrorMsg) DOM.lockErrorMsg.style.display = 'none';
+
     if (DOM.headerAuthDropdown) {
       DOM.headerAuthDropdown.classList.remove('open');
     }
+
+    if (DOM.lockUsernameInput) {
+      if (isLogout) {
+        DOM.lockUsernameInput.value = '';
+      } else if (!DOM.lockUsernameInput.value) {
+        const cur = AppStore.getCurrentUser();
+        DOM.lockUsernameInput.value = cur ? cur.username : 'admin';
+      }
+    }
+
     setTimeout(() => {
-      DOM.lockPasswordInput.focus();
+      if (DOM.lockUsernameInput && !DOM.lockUsernameInput.value) {
+        DOM.lockUsernameInput.focus();
+      } else if (DOM.lockPasswordInput) {
+        DOM.lockPasswordInput.focus();
+      }
     }, 100);
+
     if (isLogout) {
-      App.Utils.showToast('تم تسجيل الخروج بنجاح. اختر حساباً للدخول.', 'info');
+      App.Utils.showToast('تم تسجيل الخروج. يرجى إدخال اسم المستخدم وكلمة المرور.', 'info');
+    }
+  }
+
+  function checkInitialAuth() {
+    const DOM = App.DOM;
+    const isAuthenticated = sessionStorage.getItem(SESSION_AUTH_KEY) === 'true';
+
+    if (!isAuthenticated) {
+      // Require login on initial startup
+      triggerLockScreen(false, true);
+    } else {
+      // Already authenticated in this session
+      if (DOM && DOM.lockModal) {
+        DOM.lockModal.classList.remove('open');
+        DOM.lockModal.style.display = 'none';
+      }
+      loadAuthIntoUI();
+      applyCurrentUserPermissions();
     }
   }
 
@@ -301,22 +340,53 @@ window.App = window.App || {};
     const DOM = App.DOM;
     if (!DOM) return;
     const users = AppStore.getUsers();
-    const selectedUsername = DOM.lockUserSelect ? DOM.lockUserSelect.value : (AppStore.getCurrentUser() ? AppStore.getCurrentUser().username : 'admin');
-    const inputPass = DOM.lockPasswordInput.value;
 
-    const matchingUser = users.find(u => u.username === selectedUsername && u.password === inputPass);
+    const inputUser = (
+      (DOM.lockUsernameInput && DOM.lockUsernameInput.value.trim()) ||
+      (DOM.lockUserSelect && DOM.lockUserSelect.value.trim()) ||
+      ''
+    ).toLowerCase();
 
-    if (matchingUser) {
+    const inputPass = DOM.lockPasswordInput ? DOM.lockPasswordInput.value.trim() : '';
+
+    if (!inputUser || !inputPass) {
+      if (DOM.lockErrorMsg) {
+        DOM.lockErrorMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> الرجاء إدخال اسم المستخدم وكلمة المرور';
+        DOM.lockErrorMsg.style.display = 'block';
+      }
+      if (!inputUser && DOM.lockUsernameInput) DOM.lockUsernameInput.focus();
+      else if (DOM.lockPasswordInput) DOM.lockPasswordInput.focus();
+      return;
+    }
+
+    const matchingUser = users.find(u => 
+      (u.username && u.username.toLowerCase() === inputUser) ||
+      (u.name && u.name.toLowerCase() === inputUser)
+    );
+
+    if (matchingUser && matchingUser.password === inputPass) {
+      sessionStorage.setItem(SESSION_AUTH_KEY, 'true');
       AppStore.setCurrentUser(matchingUser);
       loadAuthIntoUI();
       applyCurrentUserPermissions();
-      DOM.lockModal.style.display = 'none';
-      DOM.lockErrorMsg.style.display = 'none';
-      DOM.lockPasswordInput.value = '';
-      App.Utils.showToast(`مرحباً بك مجدداً، ${matchingUser.name}`);
+
+      if (DOM.lockModal) {
+        DOM.lockModal.classList.remove('open');
+        DOM.lockModal.style.display = 'none';
+      }
+      if (DOM.lockErrorMsg) DOM.lockErrorMsg.style.display = 'none';
+      if (DOM.lockPasswordInput) DOM.lockPasswordInput.value = '';
+
+      App.Utils.showToast(`مرحباً بك، ${matchingUser.name} (${matchingUser.role || 'مستخدم مصرح'})`);
     } else {
-      DOM.lockErrorMsg.style.display = 'block';
-      DOM.lockPasswordInput.focus();
+      if (DOM.lockErrorMsg) {
+        DOM.lockErrorMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> اسم المستخدم أو كلمة المرور غير صحيحة!';
+        DOM.lockErrorMsg.style.display = 'block';
+      }
+      if (DOM.lockPasswordInput) {
+        DOM.lockPasswordInput.value = '';
+        DOM.lockPasswordInput.focus();
+      }
     }
   }
 
@@ -388,6 +458,8 @@ window.App = window.App || {};
   };
 
   App.Auth = {
+    SESSION_AUTH_KEY: SESSION_AUTH_KEY,
+    checkInitialAuth: checkInitialAuth,
     load: loadAuthIntoUI,
     loadAuthIntoUI: loadAuthIntoUI,
     applyPermissions: applyCurrentUserPermissions,

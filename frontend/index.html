@@ -1786,31 +1786,60 @@
   </div>
 
   <!-- LOCK SCREEN / LOGIN MODAL -->
-  <div class="modal-backdrop" id="lockModal" style="display: none;">
-    <div class="modal-dialog modal-sm">
-      <div class="modal-content lock-card">
-        <div class="lock-avatar">
-          <i class="fa-solid fa-shield-cat"></i>
+  <div class="modal-backdrop open" id="lockModal" style="display: flex;">
+    <div class="modal-dialog modal-sm" style="max-width: 440px;">
+      <div class="modal-content lock-card" style="padding: 28px 24px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        
+        <!-- Logo & Brand Header -->
+        <div class="lock-brand-wrap text-center" style="margin-bottom: 20px;">
+          <img src="assets/logo.jpg" alt="tow_a logo" id="lockLogoImg" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent, #f59e0b); box-shadow: 0 6px 18px rgba(0,0,0,0.35); margin-bottom: 12px; display: inline-block;">
+          <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 4px; color: #fff;">مصنع (tow_a)</h2>
+          <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0;">تسجيل الدخول للنظام وإصدار الفواتير</p>
         </div>
-        <h3>مصنع تو-A</h3>
-        <p class="text-muted">الرجاء إدخال كلمة المرور للمتابعة</p>
+
         <form id="lockLoginForm">
+          <!-- Username Input -->
           <div class="form-group mb-3 text-start">
-            <label class="form-label">اختيار الحساب / المستخدم</label>
-            <select class="form-control" id="lockUserSelect">
-              <!-- Populated dynamically with registered system users -->
-            </select>
+            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+              <span><i class="fa-solid fa-user text-accent"></i> اسم المستخدم (Username)</span>
+              <small class="text-muted" style="font-size: 0.75rem;">(أو اختر سريعاً)</small>
+            </label>
+            <div style="display: flex; gap: 6px;">
+              <input type="text" class="form-control" id="lockUsernameInput" placeholder="أدخل اسم المستخدم (مثال: admin)" autocomplete="username" required autofocus style="flex: 1;">
+              <select class="form-control" id="lockUserSelect" style="width: auto; max-width: 130px; font-size: 0.82rem;" title="اختر مستخدم مسجل">
+                <!-- Populated dynamically with registered system users -->
+              </select>
+            </div>
           </div>
+
+          <!-- Password Input with Toggle Eye -->
           <div class="form-group mb-3 text-start">
-            <label class="form-label">كلمة المرور</label>
-            <input type="password" class="form-control" id="lockPasswordInput" placeholder="••••••" required autofocus>
+            <label class="form-label"><i class="fa-solid fa-lock text-accent"></i> كلمة المرور (Password)</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" class="form-control" id="lockPasswordInput" placeholder="أدخل كلمة المرور" autocomplete="current-password" required style="padding-left: 42px;">
+              <button type="button" id="btnToggleLockPassword" title="إظهار / إخفاء كلمة المرور" style="position: absolute; left: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; font-size: 1rem;">
+                <i class="fa-solid fa-eye" id="toggleLockPasswordIcon"></i>
+              </button>
+            </div>
           </div>
-          <div id="lockErrorMsg" class="alert alert-danger" style="display: none;">
-            كلمة المرور غير صحيحة!
+
+          <!-- Error Alert -->
+          <div id="lockErrorMsg" class="alert alert-danger" style="display: none; padding: 10px 14px; font-size: 0.85rem; border-radius: 8px;">
+            <i class="fa-solid fa-circle-exclamation"></i> اسم المستخدم أو كلمة المرور غير صحيحة!
           </div>
-          <button type="submit" class="btn btn-accent w-100 btn-lg">
-            <i class="fa-solid fa-unlock-keyhole"></i> تسجيل الدخول للنظام
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-accent w-100 btn-lg" id="btnSubmitLogin" style="font-weight: 700; height: 48px; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول للنظام
           </button>
+
+          <!-- Quick Fill Default Admin Credentials Hint -->
+          <div style="margin-top: 16px; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 10px; font-size: 0.8rem; color: #94a3b8; text-align: center;">
+            <div style="margin-bottom: 6px;">حساب المدير الافتراضي: <strong style="color: #f59e0b;">admin</strong> | كلمة المرور: <strong style="color: #f59e0b;">123</strong></div>
+            <button type="button" id="btnQuickFillAdmin" class="btn btn-sm btn-outline" style="width: 100%; font-size: 0.78rem; padding: 5px 10px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> استخدام بيانات المدير الافتراضية
+            </button>
+          </div>
         </form>
       </div>
     </div>
