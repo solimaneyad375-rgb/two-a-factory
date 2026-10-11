@@ -1,7 +1,7 @@
 /* FactoryTowA SQL API bridge. Keeps the existing synchronous UI model while syncing changes to SQL via ASP.NET API. */
 (function () {
   'use strict';
-const API_BASE = window.FACTORY_API_URL || 'http://localhost:5000/api';
+const API_BASE = window.FACTORY_API_URL || 'http://localhost:5080/api';
   const map = {
     settings: { key: 'twoA_settings', getter: 'getSettings', setter: 'saveSettings' },
     auth: { key: 'twoA_auth', getter: 'getAuth', setter: 'saveAuth' },
